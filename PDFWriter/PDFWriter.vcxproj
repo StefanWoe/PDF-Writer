@@ -155,6 +155,7 @@
     <ClInclude Include="IByteReaderWithPosition.h" />
     <ClInclude Include="IByteWriter.h" />
     <ClInclude Include="IByteWriterWithPosition.h" />
+    <ClInclude Include="IContentContextListener.h" />
     <ClInclude Include="IDocumentContextExtender.h" />
     <ClInclude Include="IFormEndWritingTask.h" />
     <ClInclude Include="InputAscii85DecodeStream.h" />
@@ -168,6 +169,7 @@
     <ClInclude Include="InputStreamSkipperStream.h" />
     <ClInclude Include="InputStringBufferStream.h" />
     <ClInclude Include="IOBasicTypes.h" />
+    <ClInclude Include="IPageEndWritingTask.h" />
     <ClInclude Include="IPDFParserExtender.h" />
     <ClInclude Include="IReadPositionProvider.h" />
     <ClInclude Include="IResourceWritingTask.h" />
@@ -183,6 +185,10 @@
     <ClInclude Include="EPDFVersion.h" />
     <ClInclude Include="MyStringBuf.h" />
     <ClInclude Include="ParsedPrimitiveHelper.h" />
+    <ClInclude Include="PDFArrayIterator.h" />
+    <ClInclude Include="PDFCosArray.h" />
+    <ClInclude Include="PDFCosDict.h" />
+    <ClInclude Include="PDFDictionaryIterator.h" />
     <ClInclude Include="PDFModifiedPage.h" />
     <ClInclude Include="PDFObjectParser.h" />
     <ClInclude Include="PDFPageInput.h" />
@@ -200,6 +206,7 @@
     <ClInclude Include="SingleValueContainerIterator.h" />
     <ClInclude Include="MD5Generator.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="TiledPatternContentContext.h" />
     <ClInclude Include="Trace.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TimersRegistry.h" />

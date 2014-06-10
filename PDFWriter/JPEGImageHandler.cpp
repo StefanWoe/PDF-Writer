@@ -571,3 +571,8 @@ PDFFormXObject* JPEGImageHandler::CreateFormXObjectFromJPGStream(IByteReaderWith
 	delete imageXObject;
 	return imageFormXObject;  
 }
+
+int JPEGImageHandler::GetColorComponents(const JPEGImageInformation& inJPGImageInformation)
+{
+	return inJPGImageInformation.ColorComponentsCount;
+}

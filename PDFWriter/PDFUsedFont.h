@@ -26,6 +26,7 @@
 #include "GlyphUnicodeMapping.h"
 #include <string>
 #include <list>
+#include <map>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -56,6 +57,31 @@ public:
 		double height;
 	};
 
+	class IOutlineEnumerator : private FreeTypeFaceWrapper::IOutlineEnumerator {
+		friend PDFUsedFont;
+	public:
+		IOutlineEnumerator(double base_x, double base_y);
+		virtual ~IOutlineEnumerator(){};
+
+	protected:
+		virtual bool Moveto(double x, double y)=0;
+		virtual bool Lineto(double x, double y)=0;
+		virtual bool Curveto(double x1, double y1, double x2, double y2, double x3, double y3)=0;
+		virtual bool Closepath()=0;
+
+	private:
+		void BeginEnum(double scale);
+		void MoveBasepoint(double dx, double dy);
+
+		virtual bool Moveto(FT_Short x, FT_Short y);
+		virtual bool Lineto(FT_Short x, FT_Short y);
+		virtual bool Curveto(FT_Short x1, FT_Short y1, FT_Short x2, FT_Short y2, FT_Short x3, FT_Short y3);
+		virtual bool Close();
+
+		double mBase_x, mBase_y;
+		double mFontScale;
+	};
+
 	PDFUsedFont(FT_Face inInputFace,
 				const std::string& inFontFilePath,
 				const std::string& inAdditionalMetricsFontFilePath,
@@ -84,7 +110,7 @@ public:
 										UShortListList& outCharactersToUse,
 										bool& outTreatCharactersAsCID);
 
-	PDFHummus::EStatusCode WriteFontDefinition();
+	PDFHummus::EStatusCode WriteFontDefinition(bool inEmbedFont);
 
 	// use this method to translate text to glyphs and unicode mapping, to be later used for EncodeStringForShowing
 	PDFHummus::EStatusCode TranslateStringToGlyphs(const std::string& inText,GlyphUnicodeMappingList& outGlyphsUnicodeMapping);
@@ -97,11 +123,22 @@ public:
 	// text measurements, either pass unicode text or glyphs list
 	PDFUsedFont::TextMeasures CalculateTextDimensions(const std::string& inText,long inFontSize=1);
 	PDFUsedFont::TextMeasures CalculateTextDimensions(const UIntList& inGlyphsList,long inFontSize=1);
+	double CalculateTextAdvance(const std::string& inText,double inFontSize=1);
+	double CalculateTextAdvance(const UIntList& inGlyphsList,double inFontSize=1);
+
+	// character path enumeration, pass unicode text or glyph list
+	bool EnumeratePaths(IOutlineEnumerator& target, const std::string& inText,double inFontSize=1);
+	bool EnumeratePaths(IOutlineEnumerator& target, const UIntList& inGlyphsList,double inFontSize=1);
+
+protected:
+	void GetUnicodeGlyphs(const std::string& inText, UIntList& glyphs);
 
 private:
+	static const unsigned int AdvanceCacheLimit = 200;
 	FreeTypeFaceWrapper mFaceWrapper;
     IWrittenFont* mWrittenFont;
 	ObjectsContext* mObjectsContext;
+	std::map<unsigned int, FT_Pos> mAdvanceCache;
 
 
 };

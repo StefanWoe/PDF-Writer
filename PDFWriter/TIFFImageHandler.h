@@ -120,6 +120,12 @@ typedef	tsize_t (*ImageSizeProc)(T2P* inT2p);
 class TIFFImageHandler
 {
 public:
+	struct TiffImageInfo
+	{
+		DoubleAndDoublePair dimensions;
+		int colorComponents;
+	};
+
 	TIFFImageHandler();
 	virtual ~TIFFImageHandler(void);
 
@@ -145,6 +151,8 @@ public:
     
     // utility for tiffs, to get what tiff dimensions hummus will use
     DoubleAndDoublePair ReadImageDimensions(IByteReaderWithPosition* inTIFFStream,unsigned long inImageIndex);
+	// retrieves some image data, see struct for info
+	TiffImageInfo ReadImageInfo(IByteReaderWithPosition* inTIFFStream,unsigned long inImageIndex);
 private:
 	PDFHummus::DocumentContext* mContainerDocumentContext;
 	ObjectsContext* mObjectsContext;

@@ -117,8 +117,8 @@ namespace PDFHummus
 		void SetObjectsContext(ObjectsContext* inObjectsContext);
 		void SetOutputFileInformation(OutputFile* inOutputFile);
 		PDFHummus::EStatusCode	WriteHeader(EPDFVersion inPDFVersion);
-		PDFHummus::EStatusCode	FinalizeNewPDF();
-        PDFHummus::EStatusCode	FinalizeModifiedPDF(PDFParser* inModifiedFileParser,EPDFVersion inModifiedPDFVersion);
+		PDFHummus::EStatusCode	FinalizeNewPDF(bool inEmbedFonts);
+        PDFHummus::EStatusCode	FinalizeModifiedPDF(PDFParser* inModifiedFileParser,EPDFVersion inModifiedPDFVersion,bool inEmbedFonts);
 
 		TrailerInformation& GetTrailerInformation();
 		CatalogInformation& GetCatalogInformation();
@@ -305,11 +305,6 @@ namespace PDFHummus
 		// Extensibility option. option of writing a single time task for when a particular pattern ends
 		void RegisterTiledPatternEndWritingTask(PDFTiledPattern* inTiledPatternObject, ITiledPatternEndWritingTask* inWritingTask);
 
-
-		// JPG images handler for retrieving JPG images information
-		JPEGImageHandler& GetJPEGImageHandler();
-
-
 		PDFHummus::EStatusCode WriteState(ObjectsContext* inStateWriter,ObjectIDType inObjectID);
 		PDFHummus::EStatusCode ReadState(PDFParser* inStateReader,ObjectIDType inObjectID);
 
@@ -326,7 +321,12 @@ namespace PDFHummus
 		EStatusCode WriteFormForImage(const std::string& inImagePath,unsigned long inImageIndex,ObjectIDType inObjectID);
 		ObjectIDTypeAndBool RegisterImageForDrawing(const std::string& inImageFile,unsigned long inImageIndex);
 
-        TIFFImageHandler&  GetTIFFImageHandler() {return mTIFFImageHandler;}
+		// JPG images handler for retrieving JPG images information
+		JPEGImageHandler& GetJPEGImageHandler();
+		// tiff image handler accessor
+#ifndef PDFHUMMUS_NO_TIFF
+        TIFFImageHandler&  GetTIFFImageHandler();
+#endif
 
 	private:
 		ObjectsContext* mObjectsContext;
@@ -374,7 +374,7 @@ namespace PDFHummus
                                                        const std::string& inResourceDictionaryLabel,
                                                        MapIterator<ObjectIDTypeToStringMap> inMapping);
 		bool IsIdentityMatrix(const double* inMatrix);
-		PDFHummus::EStatusCode WriteUsedFontsDefinitions();
+		PDFHummus::EStatusCode WriteUsedFontsDefinitions(bool inEmbedFonts);
 		EStatusCodeAndObjectIDType WriteAnnotationAndLinkForURL(const std::string& inURL,const PDFRectangle& inLinkClickArea);
 
 		void WriteTrailerState(ObjectsContext* inStateWriter,ObjectIDType inObjectID);
