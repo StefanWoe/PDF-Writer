@@ -103,6 +103,7 @@ public:
     PDFHummus::EStatusCode ModifyPDFForStream(
                                     IByteReaderWithPosition* inModifiedSourceStream,
                                     IByteWriterWithPosition* inModifiedDestinationStream,
+                                    bool inAppendOnly,
                                     EPDFVersion inPDFVersion,
                                     const LogConfiguration& inLogConfiguration = LogConfiguration::DefaultLogConfiguration,
                                     const PDFCreationSettings& inPDFCreationSettings = PDFCreationSettings::DefaultPDFCreationSettings                                 
@@ -275,7 +276,7 @@ private:
     bool mIsModified;
 
 	void SetupLog(const LogConfiguration& inLogConfiguration);
-	void SetupObjectsContext(const PDFCreationSettings& inPDFCreationSettings);
+	void SetupCreationSettings(const PDFCreationSettings& inPDFCreationSettings);
 	void ReleaseLog();
 	PDFHummus::EStatusCode SetupState(const std::string& inStateFilePath);
 	void Cleanup();

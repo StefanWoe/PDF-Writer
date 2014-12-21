@@ -546,6 +546,7 @@ int DocumentContext::WritePageTree(PageTree* inPageTreeToWrite)
 static const std::string scResources = "Resources";
 static const std::string scPage = "Page";
 static const std::string scMediaBox = "MediaBox";
+static const std::string scRotate = "Rotate";
 static const std::string scCropBox = "CropBox";
 static const std::string scBleedBox = "BleedBox";
 static const std::string scTrimBox = "TrimBox";
@@ -572,6 +573,13 @@ EStatusCodeAndObjectIDType DocumentContext::WritePage(PDFPage* inPage)
 	// Media Box
 	pageContext->WriteKey(scMediaBox);
 	pageContext->WriteRectangleValue(inPage->GetMediaBox());
+
+    // Rotate
+    if(inPage->GetRotate().first)
+    {
+        pageContext->WriteKey(scRotate);
+        pageContext->WriteIntegerValue(inPage->GetRotate().second);
+    }
 
     // Crop Box
     PDFRectangle cropBox;
@@ -2523,8 +2531,8 @@ DoubleAndDoublePair DocumentContext::GetImageDimensions(const std::string& inIma
 	if(imageInformation.imageHeight == -1 || imageInformation.imageWidth == -1)
 	{
 
-		double imageWidth;
-		double imageHeight;
+		double imageWidth = 0.0;
+		double imageHeight = 0.0;
     
 		EHummusImageType imageType = GetImageType(inImageFile,inImageIndex);
         
@@ -2566,7 +2574,9 @@ DoubleAndDoublePair DocumentContext::GetImageDimensions(const std::string& inIma
                 
 				InputFile file;
 				if(file.OpenFile(inImageFile) != eSuccess)
+				{
 					break;
+				}
                 
 				DoubleAndDoublePair dimensions = hummusTiffHandler.ReadImageDimensions(file.GetInputStream(),inImageIndex);
 
@@ -2634,6 +2644,8 @@ PDFHummus::EHummusImageType DocumentContext::GetImageType(const std::string& inI
 			else
 				imageType = PDFHummus::eUndefined;
 		}
+		else
+			imageType = PDFHummus::eUndefined;
 
 		imageInformation.imageType = imageType;
 	}

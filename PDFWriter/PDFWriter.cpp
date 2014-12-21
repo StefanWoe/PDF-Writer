@@ -62,16 +62,14 @@ EStatusCode PDFWriter::StartPDF(
 							const PDFCreationSettings& inPDFCreationSettings)
 {
 	SetupLog(inLogConfiguration);
-	SetupObjectsContext(inPDFCreationSettings);
-	mEmbedFonts = inPDFCreationSettings.EmbedFonts;
+	SetupCreationSettings(inPDFCreationSettings);
 
 	EStatusCode status = mOutputFile.OpenFile(inOutputFilePath);
 	if(status != eSuccess)
 		return status;
 
 	mObjectsContext.SetOutputStream(mOutputFile.GetOutputStream());
-	mDocumentContext.SetOutputFileInformation(&mOutputFile);
-    
+	mDocumentContext.SetOutputFileInformation(&mOutputFile);    
     mIsModified = false;
 	
 	return mDocumentContext.WriteHeader(inPDFVersion);
@@ -158,9 +156,10 @@ void PDFWriter::SetupLog(const LogConfiguration& inLogConfiguration)
 		Trace::DefaultTrace.SetLogSettings(inLogConfiguration.LogFileLocation,inLogConfiguration.ShouldLog,inLogConfiguration.StartWithBOM);
 }
 
-void PDFWriter::SetupObjectsContext(const PDFCreationSettings& inPDFCreationSettings)
+void PDFWriter::SetupCreationSettings(const PDFCreationSettings& inPDFCreationSettings)
 {
 	mObjectsContext.SetCompressStreams(inPDFCreationSettings.CompressStreams);
+	mEmbedFonts = inPDFCreationSettings.EmbedFonts;
 }
 
 void PDFWriter::ReleaseLog()
@@ -510,7 +509,7 @@ EStatusCode PDFWriter::StartPDFForStream(IByteWriterWithPosition* inOutputStream
 										 const PDFCreationSettings& inPDFCreationSettings)
 {
 	SetupLog(inLogConfiguration);
-	SetupObjectsContext(inPDFCreationSettings);
+	SetupCreationSettings(inPDFCreationSettings);
 
 	mObjectsContext.SetOutputStream(inOutputStream);
     mIsModified = false;
@@ -598,7 +597,7 @@ EStatusCode PDFWriter::ModifyPDF(const std::string& inModifiedFile,
     EStatusCode status = eSuccess;
     
     SetupLog(inLogConfiguration);
-	SetupObjectsContext(inPDFCreationSettings);
+	SetupCreationSettings(inPDFCreationSettings);
 	
     do 
     {
@@ -642,12 +641,23 @@ EStatusCode PDFWriter::ModifyPDF(const std::string& inModifiedFile,
 EStatusCode PDFWriter::ModifyPDFForStream(
                                       IByteReaderWithPosition* inModifiedSourceStream,
                                       IByteWriterWithPosition* inModifiedDestinationStream,
+                                      bool inAppendOnly,
                                       EPDFVersion inPDFVersion,
                                       const LogConfiguration& inLogConfiguration,
                                       const PDFCreationSettings& inPDFCreationSettings)
 {    
     SetupLog(inLogConfiguration);
-	SetupObjectsContext(inPDFCreationSettings);
+	SetupCreationSettings(inPDFCreationSettings);
+    
+    if(!inAppendOnly)
+    {
+        // copy original to new output stream
+        OutputStreamTraits traits(inModifiedDestinationStream);
+        EStatusCode status = traits.CopyToOutputStream(inModifiedSourceStream);
+        if(status != eSuccess)
+            return status;
+        inModifiedSourceStream->SetPosition(0);
+    }
 	
     mObjectsContext.SetOutputStream(inModifiedDestinationStream);
         
