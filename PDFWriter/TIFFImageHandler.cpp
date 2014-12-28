@@ -395,6 +395,22 @@ int TIFFImageHandler::ComponentCount()
     return 0;
 }
 
+int TIFFImageHandler::ColorSampleCount()
+{
+    if(mT2p)
+    {
+        uint16 xuint16;
+        uint16* xuint16p;
+        if(TIFFGetField(mT2p->input, TIFFTAG_EXTRASAMPLES, &xuint16, &xuint16p))
+            return mT2p->tiff_samplesperpixel - xuint16;
+        else
+            return mT2p->tiff_samplesperpixel;
+
+    }
+       
+    return 0;
+}
+
 void TIFFImageHandler::Reset()
 {
 	DestroyConversionState();
